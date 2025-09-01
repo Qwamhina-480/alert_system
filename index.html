@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Schedule + Smart Alerts</title>
+  <link rel="stylesheet" href="index.css">
+  
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Student Schedule + Smart Alerts</h1>
+          <div class="subtitle">Stay on time with vivid visual vibes and smart reminders.</div>
+        </div>
+      </div>
+      <span class="pill">💡 Flask + Raspberry Pi GPIO</span>
+    </header>
+
+    <main class="grid" role="main">
+      <!-- LEFT: Add / Edit Class -->
+      <section class="card" aria-labelledby="add-title">
+        <h2 id="add-title">➕ Add a Class</h2>
+        <!-- Flask: method="post" action="{{ url_for('add_class') }}" -->
+        <form method="post">
+          <div class="full">
+            <label for="title">Class name</label>
+            <input id="title" name="title" required placeholder="e.g., Data Structures" />
+          </div>
+
+          <div>
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" required />
+          </div>
+          <div>
+            <label for="time">Time</label>
+            <input type="time" id="time" name="time" required />
+          </div>
+
+          <div>
+            <label for="location">Location</label>
+            <input id="location" name="location" placeholder="Lab 2 / Room B21" />
+          </div>
+          <div>
+            <label for="duration">Duration (mins)</label>
+            <input id="duration" name="duration" type="number" min="10" step="5" placeholder="60" />
+          </div>
+
+          <div class="full">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" placeholder="e.g., Bring lab coat, submit assignment before class"></textarea>
+          </div>
+
+          <div class="actions full">
+            <button class="btn" type="submit">Save Class</button>
+            <button class="btn ghost" type="reset">Reset</button>
+        
+          </div>
+        </form>
+      </section>
+
+      <!-- RIGHT: Today's schedule quick view -->
+      <aside class="card" aria-labelledby="today-title">
+        <h2 id="today-title">📅 Today’s Schedule</h2>
+        <div class="timeline" aria-live="polite">
+          <!-- Flask loop example
+          {% for cls in todays %}
+            <div class="slot">
+              <div class="time">{{ cls.time }}</div>
+              <div>
+                <div class="class-name">{{ cls.title }}</div>
+                <div class="muted">{{ cls.location  }}</div>
+              </div>
+              <span class="tag">{{ 'Upcoming' if not cls.started else 'Now' }}</span>
+            </div>
+          {% endfor %}
+          -->
+
+          <!-- I'll remove this later when i set flask up -->
+          <div class="slot">
+            <div class="time">09:00</div>
+            <div>
+              <div class="class-name">Calculus II</div>
+              <div class="muted">CODE</div>
+            </div>
+            <span class="tag">Upcoming</span>
+          </div>
+          <div class="slot">
+            <div class="time">13:30</div>
+            <div>
+              <div class="class-name">Programming Lab</div>
+              <div class="muted">ITC</div>
+            </div>
+            <span class="tag">Upcoming</span>
+          </div>
+          <div class="slot">
+            <div class="time">16:00</div>
+            <div>
+              <div class="class-name">Discrete Math</div>
+              <div class="muted">NLT</div>
+            </div>
+            <span class="tag">Later</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- FULL-WIDTH: Upcoming table -->
+      <section class="card" aria-labelledby="upcoming-title" style="grid-column: 1 / -1;">
+        <h2 id="upcoming-title">🔔 Upcoming Classes</h2>
+        <div class="spacer"></div>
+        <div class="table-wrap">
+          <table role="table" aria-describedby="upcoming-title">
+            <thead>
+              <tr role="row">
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">Class</th>
+                <th scope="col">Location</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Notes</th>
+                <th scope="col" class="sr-only">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Flask loop example
+              {% for cls in upcoming %}
+              <tr>
+                <td>{{ cls.date }}</td>
+                <td>{{ cls.time }}</td>
+                <td>{{ cls.title }}</td>
+                <td>{{ cls.location or '—' }}</td>
+                <td>{{ cls.duration or '—' }} min</td>
+                <td class="muted">{{ cls.notes or '—' }}</td>
+                <td>
+                  <a class="tag" href="{{ url_for('edit_class', id=cls.id) }}">Edit</a>
+                  <a class="tag" href="{{ url_for('delete_class', id=cls.id) }}" aria-label="Delete {{ cls.title }}">Delete</a>
+                </td>
+              </tr>
+              {% endfor %}
+              -->
+
+              <!-- This is for testing, i'll remove it later -->
+              <tr>
+                <td>2025-09-02</td>
+                <td>09:00</td>
+                <td>Calculus II</td>
+                <td>LT 5</td>
+                <td>60 min</td>
+                <td class="muted">Bring your laptops</td>
+                <td><span class="tag">Edit</span></td>
+              </tr>
+              <tr>
+                <td>2025-09-02</td>
+                <td>13:30</td>
+                <td>Programming Lab</td>
+                <td>SWLT</td>
+                <td>120 min</td>
+                <td class="muted">Bring Raspberry Pi</td>
+                <td><span class="tag">Edit</span></td>
+              </tr>
+              <tr>
+                <td>2025-09-04</td>
+                <td>16:00</td>
+                <td>Discrete Math</td>
+                <td>SK</td>
+                <td>60 min</td>
+                <td class="muted">Assignment due</td>
+                <td><span class="tag">Edit</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>GPIO Alerts: when it’s time, the Raspberry Pi will buzz and blink ✨<br>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
