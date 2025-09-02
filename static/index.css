@@ -290,3 +290,15 @@ footer a{
     clip:rect(0,0,0,0); 
     border:0; 
 }
+
+.btn.edit{
+color:green; 
+background: transparent; 
+border:1.5px solid rgba(255,255,255,0.65);
+}
+
+.btn.delete{
+color:red; 
+background: transparent; 
+border:1.5px solid rgba(255,255,255,0.65);
+}

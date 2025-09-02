@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Scheduler</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Student Scheduler</h1>
+          <div class="subtitle">Do well not to miss class today</div>
+        </div>
+      </div>
+      <span class="pill">Student Scheduling System</span>
+    </header>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <main class="grid" role="main">
+      <!-- LEFT: Add / Edit Class -->
+      <section class="card" aria-labelledby="add-title">
+        <h2 id="add-title">➕ Add a Class</h2>
+        <form method="post">
+          <div class="full">
+            <label for="title">Class name</label>
+            <input id="title" name="title" required placeholder="e.g., Data Structures" value="{{ edit_item.title if edit_item else '' }}">
+          </div>
+
+          <div>
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" required value="{{ edit_item.date if edit_item else '' }}">
+          </div>
+
+          <div>
+            <label for="time">Time</label>
+            <input type="time" id="time" name="time" required value="{{ edit_item.time if edit_item else '' }}">
+          </div>
+
+          <div>
+            <label for="location">Location</label>
+            <input id="location" name="location" placeholder="NLT" value="{{ edit_item.location if edit_item else '' }}">
+          </div>
+
+          <div>
+            <label for="duration">Duration (mins)</label>
+            <input id="duration" name="duration" type="number" min="10" step="5" placeholder="60" value="{{ edit_item.duration if edit_item else '' }}">
+          </div>
+
+          <div class="full">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" placeholder="e.g., Bring lab coat, submit assignment before class">{{ edit_item.notes if edit_item else '' }}</textarea>
+          </div>
+
+          <div class="actions full">
+            <button class="btn" type="submit">
+              {{ 'Update Class' if edit_item else 'Save Class' }}
+            </button>
+            <button class="btn ghost" type="reset">Reset</button>
+          </div>
+        </form>
+
+      </section>
+
+      <!-- RIGHT: Today's schedule quick view -->
+      <aside class="card" aria-labelledby="today-title">
+        <h2 id="today-title">📅 Today’s Schedule</h2>
+        <div class="timeline" aria-live="polite">
+          {% if today_schedules %}
+            {% for cls in today_schedules %}
+              <div class="slot">
+                <div class="time">{{ cls.datetime.split(" ")[1] }}</div>
+                <div>
+                  <div class="class-name">{{ cls.title }}</div>
+                  <div class="muted">{{ cls.location }}</div>
+                </div>
+                <span class="tag">{{ cls.status }}</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="muted">No classes today </p>
+          {% endif %}
+        </div>
+      </aside>
+
+      <!-- FULL-WIDTH: Upcoming table -->
+      <section class="card" aria-labelledby="upcoming-title" style="grid-column: 1 / -1;">
+        <h2 id="upcoming-title">🔔 Upcoming Classes</h2>
+        <div class="spacer"></div>
+        <div class="table-wrap">
+          <table role="table" aria-describedby="upcoming-title">
+            <thead>
+              <tr role="row">
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">Class</th>
+                <th scope="col">Location</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Notes</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if schedules %}
+                {% for cls in schedules %}
+                  <tr>
+                    <td>{{ cls.datetime.split(" ")[0] }}</td>
+                    <td>{{ cls.datetime.split(" ")[1] }}</td>
+                    <td>{{ cls.title }}</td>
+                    <td>{{ cls.location or '—' }}</td>
+                    <td>{{ cls.duration or '—' }} min</td>
+                    <td class="muted">{{ cls.notes or '—' }}</td>
+                    <td>
+                      <a href="{{ url_for('index', edit_id=cls.id) }}"><button class="btn edit" type="edit">Edit</button></a>
+                      <a  href="{{ url_for('delete_schedule', schedule_id=cls.id) }}"><button class="btn delete" type="delete">Delete</button></a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="7" class="muted">No schedules yet.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Don't forget to update your schedules</p>
+    </footer>
+  </div>
+</body>
+</html>
