@@ -86,12 +86,12 @@ def sort_schedules(schedules):
     return schedules
 
 
-# ---------------- Email Reminder ---------------- #
+
 def send_email_reminder(schedule):
     try:
         with app.app_context():
             subject = f"Reminder: {schedule.get('title')} at {schedule.get('time')}"
-            # HTML body (fields bold, values normal)
+            
             body_html = f"""
             <h3 style="font-size:18px; color:#2c3e50;">📌 Upcoming Class Reminder</h3>
             <p><span style="font-weight:bold; font-size:18px;">Title: </span> {schedule.get('title')}</p>
@@ -210,6 +210,17 @@ def delete_schedule(schedule_id):
     flash("Schedule deleted successfully!", "info")
     return redirect(url_for("index"))
 
+@app.route("/landing")
+def landing_page():
+    return render_template("landing.html")
+
+@app.route("/signup")
+def signup():
+    return render_template("landing.html")
+
+@app.route("/login")
+def login():
+    return render_template("landing.html")
 
 # ---------------- Scheduler ---------------- #
 scheduler = BackgroundScheduler()
