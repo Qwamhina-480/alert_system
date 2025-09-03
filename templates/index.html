@@ -29,10 +29,11 @@
         <div class="logo" aria-hidden="true"></div>
         <div>
           <h1>Student Scheduler</h1>
-          <div class="subtitle">Do well not to miss class today</div>
+          <div class="subtitle">Welcome {{username}}</div>
         </div>
       </div>
-      <span class="pill">Student Scheduling System</span>
+      <a href="{{ url_for('logout') }}"><button class="btn-logout" type="submit">Logout</button></a>
+      
     </header>
 
 
@@ -41,7 +42,10 @@
       <!-- LEFT: Add / Edit Class -->
       <section class="card" aria-labelledby="add-title">
         <h2 id="add-title">➕ Add a Class</h2>
-        <form method="post">
+        <form method="post" action="{{ url_for('index') }}">
+          {% if edit_item %}
+            <input type="hidden" name="edit_id" value="{{ edit_item.id }}">
+          {% endif %}
           <div class="full">
             <label for="title">Class name</label>
             <input id="title" name="title" required placeholder="e.g., Data Structures" value="{{ edit_item.title if edit_item else '' }}">

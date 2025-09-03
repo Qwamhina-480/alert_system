@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 import json, os, atexit
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 app = Flask(__name__)
@@ -11,6 +12,7 @@ app.secret_key = "supersecretkey"
 
 DB_FILE = "schedules.json"
 
+USER_FILE = "users.json"
 
 load_dotenv()
 
@@ -26,7 +28,7 @@ mail = Mail(app)
 
 # Reminder config
 REMINDER_MINUTES = int(os.getenv("REMINDER_MINUTES", "15"))
-MAIL_RECIPIENT = os.getenv("MAIL_RECIPIENT", app.config["MAIL_DEFAULT_SENDER"])
+#MAIL_RECIPIENT = os.getenv("MAIL_RECIPIENT", app.config["MAIL_DEFAULT_SENDER"])
 
 
 # ---------------- Helpers ---------------- #
@@ -41,8 +43,31 @@ def load_schedules():
 
 
 def save_schedules(schedules):
-    with open(DB_FILE, "w") as f:
-        json.dump(schedules, f, indent=4)
+    # Ensure schedules is a list of dictionaries
+    if not isinstance(schedules, list):
+        schedules = [schedules]
+    # Assign unique IDs
+    max_id = max([s.get("id", 0) for s in schedules if isinstance(s, dict)], default=0)
+    for schedule in schedules:
+        if isinstance(schedule, dict):
+            schedule["id"] = max_id + 1
+            max_id += 1
+        else:
+            print(f"Invalid schedule format: {schedule}")  # Debug
+    with open("schedules.json", "w") as file:
+        json.dump(schedules, file, indent=4)
+
+def save_users(data):
+    with open(USER_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+def load_users():
+    with open(USER_FILE, "r") as f:
+        try:
+            return json.load(f)
+        except (FileNotFoundError,json.JSONDecodeError):
+            return []
 
 
 def get_status(class_time, duration):
@@ -88,6 +113,7 @@ def sort_schedules(schedules):
 
 
 def send_email_reminder(schedule):
+    MAIL_RECIPIENTS = ["nanakobeduful@gmail.com","qwamhina@gmail.com","dcudjoe2005@gmail.com","larteenelviss03@gmail.com","pocranation7@gmail.com"]
     try:
         with app.app_context():
             subject = f"Reminder: {schedule.get('title')} at {schedule.get('time')}"
@@ -103,7 +129,7 @@ def send_email_reminder(schedule):
             <small style="color:gray;">This is an automated reminder.</small>
             """
 
-            msg = Message(subject=subject, sender=("Class Reminder App", app.config["MAIL_USERNAME"]), recipients=[MAIL_RECIPIENT], body=body_html)
+            msg = Message(subject=subject, sender=("Class Reminder App", app.config["MAIL_USERNAME"]), recipients=MAIL_RECIPIENTS, body=body_html)
             msg.html = body_html   # send HTML formatted email
 
 
@@ -146,10 +172,15 @@ def check_and_send_reminders():
     except Exception as e:
         print("Error in reminder job: %s", e)
 # ---------------- Routes ---------------- #
-@app.route("/", methods=["GET", "POST"])
+@app.route("/dashboard", methods=["GET", "POST"])
 def index():
+    if "user_id" not in session:
+        flash("Please log in to access the dashboard.", "info")
+        return redirect(url_for("landing_page"))
+    
     schedules = load_schedules()
     schedules = sort_schedules(schedules)
+    
 
     for s in schedules:
         s["status"] = get_status(s.get("datetime", ""), s.get("duration", 0))
@@ -157,7 +188,7 @@ def index():
     today = datetime.now().date()
     today_schedules = [
         s for s in schedules
-        if datetime.strptime(s["datetime"], "%Y-%m-%d %H:%M").date() == today
+        if datetime.strptime(s["datetime"], "%Y-%m-%d %H:%M").date() == today and s.get("user_id") == session["user_id"]
     ]
 
     edit_id = request.args.get("edit_id", type=int) or request.form.get("edit_id", type=int)
@@ -192,14 +223,16 @@ def index():
                     "duration": form.get("duration"),
                     "notes": form.get("notes"),
                     "reminder_sent": False,
+                    "user_id": session["user_id"]
                 }
             )
             flash("New schedule added!", "success")
 
         save_schedules(schedules)
         return redirect(url_for("index"))
-
-    return render_template("index.html", schedules=schedules, edit_item=edit_item, today_schedules=today_schedules)
+    schedules = load_schedules()
+    user_schedules = [s for s in schedules if s.get("user_id") == session["user_id"]]
+    return render_template("index.html", schedules=user_schedules, edit_item=edit_item, today_schedules=today_schedules)
 
 
 @app.route("/delete_schedule/<int:schedule_id>")
@@ -210,17 +243,56 @@ def delete_schedule(schedule_id):
     flash("Schedule deleted successfully!", "info")
     return redirect(url_for("index"))
 
-@app.route("/landing")
+@app.route("/")
 def landing_page():
     return render_template("landing.html")
 
-@app.route("/signup")
+@app.route("/signup", methods=["POST"])
 def signup():
+    data = request.form
+    username = data.get("username")
+    email = data.get("email")
+    password = generate_password_hash(data.get("password"))
+
+    users = load_users()    
+    if any(u["email"] == data["email"] for u in users): 
+        flash("Email already registered!", "info")
+        return redirect(url_for("landing_page"))
+    
+    new_user = {
+        "id": len(users) + 1,
+        "username": username,
+        "email": email,
+        "password": password
+    }
+    users.append(new_user)
+    save_users(users)
+    flash("Signup successful", "success")
+    return render_template("index.html")
+
+@app.route("/login", methods=["POST"])
+def login():
+    if request.method == "POST":
+        data = request.form
+        email = data.get("email")
+        password = data.get("password")
+
+        users = load_users()
+        user = next((u for u in users if u["email"] == email), None)
+        if user and check_password_hash(user["password"], password):
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            flash("Login successful", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("Invalid email or password", "info")
     return render_template("landing.html")
 
-@app.route("/login")
-def login():
-    return render_template("landing.html")
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Logged out successfully", "success")
+    return redirect(url_for("landing_page"))       
 
 # ---------------- Scheduler ---------------- #
 scheduler = BackgroundScheduler()
