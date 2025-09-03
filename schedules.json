@@ -1,14 +1,15 @@
 [
     {
-        "id": 1,
-        "title": "lmlrfd",
+        "id": 3,
+        "title": "Math 102",
         "date": "2025-09-02",
-        "time": "00:15",
-        "datetime": "2025-09-02 00:15",
-        "location": "NLT",
-        "duration": "125",
-        "notes": "po4fewdlskmf",
-        "status": "Past"
+        "time": "23:40",
+        "datetime": "2025-09-02 23:40",
+        "location": "ITC",
+        "duration": "60",
+        "notes": "",
+        "reminder_sent": true,
+        "status": "Now"
     },
     {
         "id": 2,
@@ -22,13 +23,14 @@
         "status": "Later"
     },
     {
-        "id": 3,
-        "title": "GPIO class",
-        "date": "2025-09-02",
-        "time": "09:00",
-        "datetime": "2025-09-02 09:00",
-        "location": "ITC",
-        "duration": "120",
-        "notes": "Come early to set up your Raspberry Pi"
+        "id": 4,
+        "title": "Data Structures",
+        "date": "2025-09-03",
+        "time": "00:16",
+        "datetime": "2025-09-03 00:16",
+        "location": "NLT",
+        "duration": "60",
+        "notes": "",
+        "reminder_sent": true
     }
 ]

@@ -302,3 +302,53 @@ color:red;
 background: transparent; 
 border:1.5px solid rgba(255,255,255,0.65);
 }
+
+
+/* Flash message container */
+#flash-messages {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+/* Base flash style */
+.flash-message {
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  animation: fadeInOut 5s forwards;
+}
+
+/* Success */
+.flash-message.success {
+  background: linear-gradient(135deg, #28a745, #218838);
+}
+
+/* Error */
+.flash-message.info {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+/* Info */
+.flash-message.error {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+/* Warning */
+.flash-message.warning {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #000; /* dark text for contrast */
+}
+
+/* Fade-in and fade-out effect */
+@keyframes fadeInOut {
+  0%   { opacity: 0; transform: translateY(-20px); }
+  10%  { opacity: 1; transform: translateY(0); }
+  90%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
