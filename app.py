@@ -157,7 +157,7 @@ def send_email_reminder(schedule):
             <p><span style="font-weight:bold; font-size:18px;">Duration: </span> {schedule.get('duration', '—')} minutes</p>
             <p><span style="font-weight:bold; font-size:18px;">Notes: </span><br>{schedule.get('notes', '')}</p>
             <hr>
-            <small style="color:gray;">This is an automated reminder.</small>
+            <small style="color:gray;">Enjoy your class!</small>
             """
 
             MAIL_RECIPIENT = schedule.get("user_email")

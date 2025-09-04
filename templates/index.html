@@ -33,8 +33,14 @@
           <div class="subtitle">Welcome {{user_email}}</div>
         </div>
       </div>
-      <a href="{{ url_for('logout') }}"><button class="btn-logout" type="submit">Logout</button></a>
-      
+     <nav class="navbar">
+      <div class="nav-right">
+        <a href="{{ url_for('logout') }}">
+          <button class="btn-logout" type="button">Logout</button>
+        </a>
+      </div>
+    </nav>
+
     </header>
 
 
