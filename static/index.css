@@ -260,7 +260,12 @@ table{
     width:100%; 
     border-collapse:separate; 
     border-spacing:0 10px; 
+    min-width: 100%;
 }
+.table-wrap{
+    overflow-x: auto
+}
+
 th, td{ 
     text-align:left; 
     padding:14px 14px; 
@@ -395,8 +400,22 @@ border:1.5px solid rgba(255,255,255,0.65);
 }
 
 .username {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333;
-  margin-top: 5px;
+  color: white;
+}
+
+#page-content {
+  transition: filter 0.25s ease-in-out;
+}
+
+body.modal-open #page-content,
+#page-content.blurred {
+  filter: blur(6px) brightness(0.70);
+}
+
+@media (max-width: 576px) {
+  td a .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 6px;
+  }
 }

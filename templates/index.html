@@ -31,7 +31,7 @@
         <div class="logo" aria-hidden="true"></div>
           <div>
           <h1>Student Scheduler</h1>
-          <h5 >Welcome <span class="username">{{ user.username }}</span></h5>
+           <div class="username">Welcome {{ user.username }}</div>
         </div>
         
       </div>
@@ -131,6 +131,7 @@
       <section class="card" aria-labelledby="upcoming-title" style="grid-column: 1 / -1;">
         <h2 id="upcoming-title">🔔 Upcoming Classes</h2>
         <div class="spacer"></div>
+        <div class="table-responsive">
         <div class="table-wrap">
           <table role="table" aria-describedby="upcoming-title">
             <thead>
@@ -168,6 +169,7 @@
               {% endif %}
             </tbody>
           </table>
+        </div>
         </div>
       </section>
     </main>

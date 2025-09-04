@@ -10,6 +10,20 @@
         "notes": "",
         "reminder_sent": true,
         "user_id": 2,
-        "user_email": "qwalarg1234@gmail.com"
+        "user_email": "qwalarg1234@gmail.com",
+        "status": "Past"
+    },
+    {
+        "id": 2,
+        "title": "RME",
+        "date": "2025-09-04",
+        "time": "21:50",
+        "datetime": "2025-09-04 21:50",
+        "location": "NLT 5",
+        "duration": "60",
+        "notes": "",
+        "reminder_sent": true,
+        "user_id": 3,
+        "user_email": "admin@gmail.com"
     }
 ]
