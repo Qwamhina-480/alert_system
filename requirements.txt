@@ -1,0 +1,6 @@
+flask
+flask_mail
+python-dotenv
+apscheduler
+werkzeug
+gunicorn

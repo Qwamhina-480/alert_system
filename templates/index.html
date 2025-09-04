@@ -29,7 +29,8 @@
         <div class="logo" aria-hidden="true"></div>
         <div>
           <h1>Student Scheduler</h1>
-          <div class="subtitle">Welcome {{username}}</div>
+          
+          <div class="subtitle">Welcome {{user_email}}</div>
         </div>
       </div>
       <a href="{{ url_for('logout') }}"><button class="btn-logout" type="submit">Logout</button></a>
@@ -53,7 +54,7 @@
 
           <div>
             <label for="date">Date</label>
-            <input type="date" id="date" name="date" required value="{{ edit_item.date if edit_item else '' }}">
+            <input type="date" id="date" name="date" required min="{{ datetime.utcnow().strftime('%Y-%m-%d') }}" value="{{ edit_item.date if edit_item else '' }}">
           </div>
 
           <div>
@@ -62,7 +63,7 @@
           </div>
 
           <div>
-            <label for="location">Location</label>
+            <label for="location">Venue</label>
             <input id="location" name="location" placeholder="NLT" required value="{{ edit_item.location if edit_item else '' }}">
           </div>
 

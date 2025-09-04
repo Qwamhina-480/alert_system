@@ -7,14 +7,27 @@ from dotenv import load_dotenv
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
+load_dotenv()
+
+
+DATA_DIR = os.getenv("DATA_DIR", "data")
+os.makedirs(DATA_DIR, exist_ok=True)
+
+DB_FILE   = os.path.join(DATA_DIR, "schedules.json")
+USER_FILE = os.path.join(DATA_DIR, "users.json")
+for path in (DB_FILE, USER_FILE):
+    if not os.path.exists(path):
+        with open(path, "w") as fh:
+            json.dump([], fh)
+
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = os.getenv("APP_SECRET_KEY")
 
 DB_FILE = "schedules.json"
 
 USER_FILE = "users.json"
 
-load_dotenv()
+
 
 
 app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
@@ -28,7 +41,7 @@ mail = Mail(app)
 
 # Reminder config
 REMINDER_MINUTES = int(os.getenv("REMINDER_MINUTES", "15"))
-#MAIL_RECIPIENT = os.getenv("MAIL_RECIPIENT", app.config["MAIL_DEFAULT_SENDER"])
+MAIL_RECIPIENT = os.getenv("MAIL_RECIPIENT", app.config["MAIL_DEFAULT_SENDER"])
 
 
 # ---------------- Helpers ---------------- #
@@ -46,14 +59,18 @@ def save_schedules(schedules):
     # Ensure schedules is a list of dictionaries
     if not isinstance(schedules, list):
         schedules = [schedules]
-    # Assign unique IDs
-    max_id = max([s.get("id", 0) for s in schedules if isinstance(s, dict)], default=0)
+
+    # Find current maximum ID
+    existing_ids = [s.get("id", 0) for s in schedules if isinstance(s, dict)]
+    max_id = max(existing_ids, default=0)
+
     for schedule in schedules:
-        if isinstance(schedule, dict):
-            schedule["id"] = max_id + 1
+        if isinstance(schedule, dict) and "id" not in schedule:
             max_id += 1
-        else:
+            schedule["id"] = max_id
+        elif not isinstance(schedule, dict):
             print(f"Invalid schedule format: {schedule}")  # Debug
+
     with open("schedules.json", "w") as file:
         json.dump(schedules, file, indent=4)
 
@@ -63,11 +80,26 @@ def save_users(data):
 
 
 def load_users():
-    with open(USER_FILE, "r") as f:
-        try:
+    if not os.path.exists(USER_FILE):
+        return []
+    try:
+        with open(USER_FILE, "r") as f:
             return json.load(f)
-        except (FileNotFoundError,json.JSONDecodeError):
-            return []
+    except json.JSONDecodeError:
+        return []
+
+
+def get_user_email(user_id):
+    users = load_users()
+    for u in users:
+        if u["id"] == user_id:
+            return u["email"]
+    return None
+
+def get_user_by_id(user_id):
+    users = load_users()
+    return next((u for u in users if u["id"] == user_id), None)
+
 
 
 def get_status(class_time, duration):
@@ -113,7 +145,6 @@ def sort_schedules(schedules):
 
 
 def send_email_reminder(schedule):
-    MAIL_RECIPIENTS = ["nanakobeduful@gmail.com","qwamhina@gmail.com","dcudjoe2005@gmail.com","larteenelviss03@gmail.com","pocranation7@gmail.com"]
     try:
         with app.app_context():
             subject = f"Reminder: {schedule.get('title')} at {schedule.get('time')}"
@@ -129,7 +160,12 @@ def send_email_reminder(schedule):
             <small style="color:gray;">This is an automated reminder.</small>
             """
 
-            msg = Message(subject=subject, sender=("Class Reminder App", app.config["MAIL_USERNAME"]), recipients=MAIL_RECIPIENTS, body=body_html)
+            MAIL_RECIPIENT = schedule.get("user_email")
+            if not MAIL_RECIPIENT:
+                print("No email found for user:", schedule.get("user_id"))
+                return False
+
+            msg = Message(subject=subject, sender=("Class Reminder", app.config["MAIL_USERNAME"]), recipients=[MAIL_RECIPIENT], body=body_html)
             msg.html = body_html   # send HTML formatted email
 
 
@@ -185,6 +221,22 @@ def index():
     for s in schedules:
         s["status"] = get_status(s.get("datetime", ""), s.get("duration", 0))
 
+    """#  Filtering
+    filter_status = request.args.get("filter", "all")
+    search_query = request.args.get("search", "").lower()
+
+    if filter_status != "all":
+        user_schedules = [s for s in user_schedules if s["status"] == filter_status]
+
+    if search_query:
+        user_schedules = [
+            s for s in user_schedules 
+            if search_query in s.get("title", "").lower()
+            or search_query in s.get("location", "").lower()
+            or search_query in s.get("notes", "").lower()
+        ]
+"""
+    
     today = datetime.now().date()
     today_schedules = [
         s for s in schedules
@@ -212,6 +264,11 @@ def index():
             flash("Schedule updated!", "success")
         else:
             new_id = max([c["id"] for c in schedules], default=0) + 1
+            user = get_user_by_id(session["user_id"])
+            if not user:
+                flash("User not found. Please log in again.", "info")
+                return redirect(url_for("landing_page"))
+
             schedules.append(
                 {
                     "id": new_id,
@@ -223,22 +280,22 @@ def index():
                     "duration": form.get("duration"),
                     "notes": form.get("notes"),
                     "reminder_sent": False,
-                    "user_id": session["user_id"]
+                    "user_id": user["id"],
+                    "user_email": user["email"]   
                 }
             )
-            flash("New schedule added!", "success")
 
         save_schedules(schedules)
         return redirect(url_for("index"))
     schedules = load_schedules()
     user_schedules = [s for s in schedules if s.get("user_id") == session["user_id"]]
-    return render_template("index.html", schedules=user_schedules, edit_item=edit_item, today_schedules=today_schedules)
+    return render_template("index.html", schedules=user_schedules, edit_item=edit_item, today_schedules=today_schedules, datetime=datetime)
 
 
 @app.route("/delete_schedule/<int:schedule_id>")
 def delete_schedule(schedule_id):
     schedules = load_schedules()
-    schedules = [s for s in schedules if s["id"] != schedule_id]
+    schedules = [s for s in schedules if not (s["id"] == schedule_id and s["user_id"] == session["user_id"])]
     save_schedules(schedules)
     flash("Schedule deleted successfully!", "info")
     return redirect(url_for("index"))
@@ -255,20 +312,34 @@ def signup():
     password = generate_password_hash(data.get("password"))
 
     users = load_users()    
-    if any(u["email"] == data["email"] for u in users): 
+    if any(u["email"] == email for u in users): 
         flash("Email already registered!", "info")
         return redirect(url_for("landing_page"))
     
     new_user = {
-        "id": len(users) + 1,
+        "id":  max([u["id"] for u in users], default=0) + 1,
         "username": username,
         "email": email,
         "password": password
     }
     users.append(new_user)
     save_users(users)
-    flash("Signup successful", "success")
-    return render_template("index.html")
+    flash("Signup successful, please log in!", "success")
+
+    msg = Message(
+    subject="Welcome to StuCh, your best Reminder App!",
+    sender=("Class Reminder"),
+    recipients=[email],
+    body=f"Hello {username},\n\nThanks for signing up. You can now start adding schedules."
+)
+    try:
+        mail.send(msg)
+    except Exception as e:
+        app.logger.error(f"Failed to send welcome email: {e}")
+
+
+    return redirect(url_for("landing_page"))
+
 
 @app.route("/login", methods=["POST"])
 def login():

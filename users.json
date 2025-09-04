@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "username": "admin",
+        "email": "admin@gmail.com",
+        "password": "scrypt:32768:8:1$WM9SPDEXMue3MgG3$57e350a53f046a3dabfc301bf8801c2bbdd654cf38a4627bfa0f07525bbbfbf532dc468156dfce0600a028d948058f94610c5a581fdac77084ecd4614a7f4c6f"
+    },
+    {
+        "id": 2,
+        "username": "qwamhina",
+        "email": "qwamhina@gmail.com",
+        "password": "scrypt:32768:8:1$z2NYRAJTH32iG2vC$525d1e085b007dc625ac99057f701ad4e70dbd0b4c46c499125a70430b94d4b6cfb1425ed207f807b09ed8ad74ec02f475cc1dc09d9559dc3988853ed81e699f"
+    },
+    {
+        "id": 3,
+        "username": "qwalarg",
+        "email": "qwalarg1234@gmail.com",
+        "password": "scrypt:32768:8:1$MacAQ2MexCQmYvVd$9ae4ee51f5737bd86004ee0d4212cc4f67c441cb9604569877d4a675c63adcf750596152c741d2b070594002507b9a1ec2438e5408ff3ef9e91898ff2f403e00"
+    }
+]
