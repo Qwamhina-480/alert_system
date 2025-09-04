@@ -377,3 +377,26 @@ border:1.5px solid rgba(255,255,255,0.65);
   90%  { opacity: 1; }
   100% { opacity: 0; transform: translateY(-20px); }
 }
+
+
+.profile-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.profile-pic {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.username {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-top: 5px;
+}

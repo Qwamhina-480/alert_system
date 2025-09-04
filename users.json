@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "username": "qwamhina",
+        "email": "qwamhina@gmail.com",
+        "password": "scrypt:32768:8:1$I2EbtgDwToeD8P3u$71654e76af81d797c0f7cb0e5984a4c03d03e342ff67c7fbd1efe91db3167b673c1c99dcd4bd00259968ee4c18599fbfed130e9b63cda5684ccff4f497b61ee1"
+    },
+    {
+        "id": 2,
+        "username": "qwalarg",
+        "email": "qwalarg1234@gmail.com",
+        "password": "scrypt:32768:8:1$PrCKYwE9jiZpJIyY$85ccc1a79a526d01605f120add307117c5db51dae551ce8c36156f037010445f76375531e64985d747b2b4f989849efef043a586f5f87d4a5b4bc0afe76ceadb"
+    }
+]

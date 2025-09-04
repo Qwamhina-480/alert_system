@@ -210,6 +210,7 @@ def check_and_send_reminders():
 # ---------------- Routes ---------------- #
 @app.route("/dashboard", methods=["GET", "POST"])
 def index():
+    check_and_send_reminders()
     if "user_id" not in session:
         flash("Please log in to access the dashboard.", "info")
         return redirect(url_for("landing_page"))
@@ -287,9 +288,13 @@ def index():
 
         save_schedules(schedules)
         return redirect(url_for("index"))
+    users = load_users()
+    user = next((u for u in users if u["id"] == session["user_id"]), None)
+
+
     schedules = load_schedules()
     user_schedules = [s for s in schedules if s.get("user_id") == session["user_id"]]
-    return render_template("index.html", schedules=user_schedules, edit_item=edit_item, today_schedules=today_schedules, datetime=datetime)
+    return render_template("index.html", schedules=user_schedules, edit_item=edit_item, today_schedules=today_schedules, datetime=datetime,user=user)
 
 
 @app.route("/delete_schedule/<int:schedule_id>")

@@ -10,6 +10,8 @@
   
 </head>
 <body>
+
+
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <div id="flash-messages">
@@ -21,26 +23,37 @@
       </div>
     {% endif %}
   {% endwith %}
-
+  
 
   <div class="wrap">
     <header>
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
-        <div>
+          <div>
           <h1>Student Scheduler</h1>
-          
-          <div class="subtitle">Welcome {{user_email}}</div>
+          <h5 >Welcome <span class="username">{{ user.username }}</span></h5>
         </div>
+        
       </div>
+      
      <nav class="navbar">
       <div class="nav-right">
-        <a href="{{ url_for('logout') }}">
+            <a href="{{ url_for('logout') }}">
           <button class="btn-logout" type="button">Logout</button>
-        </a>
+            </a> 
       </div>
     </nav>
-
+<!--
+    <nav class="navbar">
+      <div class="nav-right">
+        <div class="profile-container"></div>
+          <img src="{{ url_for('static', filename='images/avatar.jpg') }}" alt="Profile Picture" class="profile-pic">
+          <h2 class="username">{{ user.username }}</h2>
+        </div> 
+      </div>
+    </nav>
+-->
+    
     </header>
 
 
